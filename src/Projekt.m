@@ -2,8 +2,9 @@
 clc
 clear all
 close all
+addpath('../Data')
 
-load afdb_4.mat
+load afdb_1
 
 figure(1)
 subplot(2,1,1)

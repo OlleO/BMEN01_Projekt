@@ -13,4 +13,5 @@ Now with SSH instead,
 + to
 + login
 + _all_
-+ the __time__
++ the
++ __time__

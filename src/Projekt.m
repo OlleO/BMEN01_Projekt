@@ -4,28 +4,32 @@ clear all
 close all
 addpath('../Data')
 
+temp_rr = cell(1,4);
+temp_targetsRR = cell(1,4);
+
 load afdb_1
-rr1 = rr;
-targetsRR1 = targetsRR;
+temp_rr{1} = rr;
+temp_targetsRR{1} = targetsRR;
 
 load afdb_2
-rr2 = rr;
-targetsRR2 = targetsRR;
+temp_rr{2} = rr;
+temp_targetsRR{2} = targetsRR;
 
 load afdb_3
-rr3 = rr;
-targetsRR3 = targetsRR;
+temp_rr{3} = rr;
+temp_targetsRR{3} = targetsRR;
 
 load afdb_4
-rr4 = rr;
-targetsRR4 = targetsRR;
+temp_rr{4} = rr;
+temp_targetsRR{4} = targetsRR;
 
+rr = temp_rr;
+targetsRR = temp_targetsRR;
 
+clear afBounds Fs qrs recordName temp_rr temp_targetsRR targetsQRS
 
-clear afBounds Fs qrs recordName rr targetsRR targetsQRS
-
-rr = [rr1, rr2, rr3, rr4];
-targetsRR = [targetsRR1, targetsRR2, targetsRR3, targetsRR4];
+RR = [rr{1}, rr{2}, rr{3}, rr{4}];
+TargetsRR = [targetsRR{1}, targetsRR{2}, targetsRR{3}, targetsRR{4}];
 
 
 %% Plot data and target values (ground truth)
@@ -46,13 +50,13 @@ title('Ground truth')
 %% *** Training part ***
 
 %% Feature extraction
-features = zeros(2,length(rr));
+Features = zeros(2,length(RR));
 
 % P_cv
-features(1,:) = pcv(rr);
+Features(1,:) = pcv(RR);
 
 % deltaHistogram
-features(2,:) = deltaHistogram(rr);
+Features(2,:) = deltaHistogram(RR);
 
 %% Plot P_cv --> corrupted data?? 
 % figure(2)
@@ -70,8 +74,8 @@ features(2,:) = deltaHistogram(rr);
 % legend('P_{cv}', 'Ground truth')
 % hold off
 
-%% Train 4-Nearest Neighbours classifier
-classifier = trainClassifier(features, targetsRR);
+%% Train k-Nearest Neighbours classifier (k = 4)
+classifier = trainClassifier(Features, TargetsRR);
 
 
 
@@ -85,51 +89,42 @@ classifier = trainClassifier(features, targetsRR);
 %% *** Classification part ***
 
 %% Feature extraction
-features1 = zeros(1, length(rr1));
-features2 = zeros(1, length(rr2));
-features3 = zeros(1, length(rr3));
-features4 = zeros(1, length(rr4));
+features = cell(1,4);
 
-% P_cv features
-features1(1,:) = pcv(rr1);
-features2(1,:) = pcv(rr2);
-features3(1,:) = pcv(rr3);
-features4(1,:) = pcv(rr4);
+for i = 1:4
+    features{i} = zeros(2, length(rr{i}));
+    
+    % P_cv
+    features{i}(1,:) = pcv(rr{i});
+    
+    % deltaHistogram
+    features{i}(2,:) = deltaHistogram(rr{i});
+end
 
 %% AF-detection
-detectRR1 = myClassifier(features1, classifier);
-detectRR2 = myClassifier(features2, classifier);
-detectRR3 = myClassifier(features3, classifier);
-detectRR4 = myClassifier(features4, classifier);
+detectRR = cell(1,4);
 
-%% Interval filtering with thresholding (>10 detections)
-detectRR1 = noiseEraser(detectRR1);
-detectRR2 = noiseEraser(detectRR2);
-detectRR3 = noiseEraser(detectRR3);
-detectRR4 = noiseEraser(detectRR4);
+for i = 1:4
+    detectRR{i} = myClassifier(features{i}, classifier);
+end
 
+%% Interval smoothing with threshold
+
+for i = 1:4
+    detectRR{i} = noiseEraser(detectRR{i});
+end
+    
 %% Benchmark performance and print
-[sensitivity1, specificity1] = benchmark(targetsRR1, detectRR1);
-[sensitivity2, specificity2] = benchmark(targetsRR2, detectRR2);
-[sensitivity3, specificity3] = benchmark(targetsRR3, detectRR3);
-[sensitivity4, specificity4] = benchmark(targetsRR4, detectRR4);
+sensitivity = [0 0 0 0];
+specificity = [0 0 0 0];
 
-fprintf('Subject 1: \n Sensitivity %f \n Specificity %f \n\n', ...
-    sensitivity1, specificity1);
-fprintf('_____________________________________________\n');
-
-fprintf('Subject 2: \n Sensitivity %f \n Specificity %f \n\n', ...
-    sensitivity2, specificity2);
-fprintf('_____________________________________________\n');
-
-fprintf('Subject 3: \n Sensitivity %f \n Specificity %f \n\n', ...
-    sensitivity3, specificity3);
-fprintf('_____________________________________________\n');
-
-fprintf('Subject 4: \n Sensitivity %f \n Specificity %f \n\n', ...
-    sensitivity4, specificity4);
-fprintf('_____________________________________________\n');
-
+for i = 1:4
+    [sensitivity(i), specificity(i)] = benchmark(targetsRR{i}, detectRR{i});
+    
+    fprintf('Subject %d: \n Sensitivity %f \n Specificity %f \n\n', ...
+    i, sensitivity(i), specificity(i));
+    fprintf('_____________________________________________\n');
+end
 
 %% Plot the results for subject1
 figure 

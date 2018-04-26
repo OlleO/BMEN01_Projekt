@@ -4,15 +4,17 @@ function P_cv = pcv(X)
 
 P_cv = zeros(1,length(X));
 
-windowLength = 11; % kan användas för att slippa hardcode
-X = [0 0 0 0 0 X 0 0 0 0 0];
+windowLength = 17; % lenght of the sliding window
+halfWindow = floor(windowLength/2);
+
+X = [zeros(1, halfWindow), X, zeros(1, halfWindow)]; % zero-pad to handle edges
 
 
-for i = 6:length(X)-5
-    x = X(i-5:i+5);
+for i = halfWindow+1:length(X)-halfWindow
+    x = X(i-halfWindow:i+halfWindow);
     m = mean(x);
     sigma = std(x);
-    P_cv(i-5) = sigma/m;
+    P_cv(i-halfWindow) = sigma/m;
 end
 
 end

@@ -20,6 +20,8 @@ load afdb_4
 rr4 = rr;
 targetsRR4 = targetsRR;
 
+
+
 clear afBounds Fs qrs recordName rr targetsRR targetsQRS
 
 rr = [rr1, rr2, rr3, rr4];
@@ -44,27 +46,29 @@ title('Ground truth')
 %% *** Training part ***
 
 %% Feature extraction
-features = zeros(1,length(rr));
+features = zeros(2,length(rr));
 
 % P_cv
-P_cv = pcv(rr);
-features(1,:) = P_cv;
+features(1,:) = pcv(rr);
 
-%% Plot P_cv 
-figure(2)
-subplot(2,1,1)
-hold on
-plot(rr)
-plot(targetsRR*2, 'g')
-legend('Signal', 'Ground truth')
-hold off
-subplot(212)
-hold on
-plot(P_cv(6:end-5))
-plot(targetsRR(6:end-5)*0.5, 'g')
-title('P_cv feature')
-legend('P_{cv}', 'Ground truth')
-hold off
+% deltaHistogram
+features(2,:) = deltaHistogram(rr);
+
+%% Plot P_cv --> corrupted data?? 
+% figure(2)
+% subplot(2,1,1)
+% hold on
+% plot(rr)
+% plot(targetsRR*2, 'g')
+% legend('Signal', 'Ground truth')
+% hold off
+% subplot(212)
+% hold on
+% plot(P_cv(6:end-5))
+% plot(targetsRR(6:end-5)*0.5, 'g')
+% title('P_cv feature')
+% legend('P_{cv}', 'Ground truth')
+% hold off
 
 %% Train 4-Nearest Neighbours classifier
 classifier = trainClassifier(features, targetsRR);
@@ -98,7 +102,11 @@ detectRR2 = myClassifier(features2, classifier);
 detectRR3 = myClassifier(features3, classifier);
 detectRR4 = myClassifier(features4, classifier);
 
-% Interval filtering with thresholding (>10 detections)
+%% Interval filtering with thresholding (>10 detections)
+detectRR1 = noiseEraser(detectRR1);
+detectRR2 = noiseEraser(detectRR2);
+detectRR3 = noiseEraser(detectRR3);
+detectRR4 = noiseEraser(detectRR4);
 
 %% Benchmark performance and print
 [sensitivity1, specificity1] = benchmark(targetsRR1, detectRR1);
@@ -121,8 +129,6 @@ fprintf('_____________________________________________\n');
 fprintf('Subject 4: \n Sensitivity %f \n Specificity %f \n\n', ...
     sensitivity4, specificity4);
 fprintf('_____________________________________________\n');
-
-
 
 
 %% Plot the results for subject1

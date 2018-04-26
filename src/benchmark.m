@@ -1,4 +1,4 @@
-function [sensitivity, specificity] = benchmark(ground_truth, Y)
+function [sensitivity, specificity] = benchmark(targets, Y)
 maxPoints = length(Y); 
 
 TP=0;
@@ -8,7 +8,7 @@ FN=0;
 
 for i=1:maxPoints 
     %Truevärden 
-    if ground_truth(i)==Y(i)
+    if targets(i)==Y(i)
         if Y(i)==1 
             TP=TP+1;
         else 

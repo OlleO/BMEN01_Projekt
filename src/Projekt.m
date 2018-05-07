@@ -3,7 +3,7 @@ clc
 clear all
 close all
 addpath('../Data')
-
+%%
 temp_rr = cell(1,7);
 temp_targetsRR = cell(1,4);
 
@@ -135,20 +135,26 @@ for i = 1:4
     fprintf('_____________________________________________\n');
 end
 
-%% Plot the results for subject1
-figure 
-subplot(211)
-hold on
-plot(rr{1})
-plot(detectRR{1})
-legend('Signal', 'Classification')
-hold off
-subplot(212)
-hold on
-plot(targetsRR{1}*2)
-plot(detectRR{1})
-legend('Ground truth', 'Classification')
-hold off
+%% Plot the results for subjects
+close all
+figure(1)
+
+for i = 1:4
+    subplot(4,1,i)
+    
+    classifiedVector = benchmarkColors(targetsRR{i}, detectRR{i}, rr{i});
+    
+    hold on
+    for j = 1:4
+        plot(classifiedVector{3,j}, classifiedVector{2,j})
+    end
+    ylabel(['AFDB\_' num2str(i)])
+    
+    hold off
+end
+bme = suptitle('Classified signals');
+set(bme, 'FontSize',30, 'FontName', 'Jokerman')
+legend({'True negative', 'True positive', 'False negative', 'False positive'},'FontSize',14)
 
 
 

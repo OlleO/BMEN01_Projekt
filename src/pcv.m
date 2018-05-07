@@ -4,6 +4,8 @@ function P_cv = pcv(X)
 
 P_cv = zeros(1,length(X));
 
+X = medfilt1(X);
+
 windowLength = 17; % lenght of the sliding window
 halfWindow = floor(windowLength/2);
 

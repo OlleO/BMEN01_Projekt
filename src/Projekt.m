@@ -4,7 +4,7 @@ clear all
 close all
 addpath('../Data')
 
-temp_rr = cell(1,4);
+temp_rr = cell(1,7);
 temp_targetsRR = cell(1,4);
 
 load afdb_1
@@ -23,6 +23,15 @@ load afdb_4
 temp_rr{4} = rr;
 temp_targetsRR{4} = targetsRR;
 
+load afdb_5
+temp_rr{5} = rr;
+
+load afdb_6
+temp_rr{6} = rr;
+
+load afdb_7
+temp_rr{7} = rr;
+
 rr = temp_rr;
 targetsRR = temp_targetsRR;
 
@@ -36,10 +45,10 @@ TargetsRR = [targetsRR{1}, targetsRR{2}, targetsRR{3}, targetsRR{4}];
 
 figure(1)
 subplot(2,1,1)
-plot(rr)
+plot(RR)
 title('Signal')
 subplot(2,1,2)
-plot(targetsRR)
+plot(TargetsRR)
 ylim([-1 2])
 title('Ground truth')
 
@@ -130,14 +139,14 @@ end
 figure 
 subplot(211)
 hold on
-plot(rr1)
-plot(detectRR1)
+plot(rr{1})
+plot(detectRR{1})
 legend('Signal', 'Classification')
 hold off
 subplot(212)
 hold on
-plot(targetsRR1*2)
-plot(detectRR1)
+plot(targetsRR{1}*2)
+plot(detectRR{1})
 legend('Ground truth', 'Classification')
 hold off
 

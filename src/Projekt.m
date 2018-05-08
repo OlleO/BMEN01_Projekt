@@ -38,19 +38,19 @@ targetsRR = temp_targetsRR;
 clear afBounds Fs qrs recordName temp_rr temp_targetsRR targetsQRS
 
 RR = [rr{1}, rr{2}, rr{3}, rr{4}];
-TargetsRR = [targetsRR{1}, targetsRR{2}, targetsRR{3}, targetsRR{4}];
+TargetsRR = [targetsRR{1}, targetsRR{2}, targetsRR{3}, rr{4}];
 
 
 %% Plot data and target values (ground truth)
 
-figure(1)
-subplot(2,1,1)
-plot(RR)
-title('Signal')
-subplot(2,1,2)
-plot(TargetsRR)
-ylim([-1 2])
-title('Ground truth')
+% figure(1)
+% subplot(2,1,1)
+% plot(RR)
+% title('Signal')
+% subplot(2,1,2)
+% plot(TargetsRR)
+% ylim([-1 2])
+% title('Ground truth')
 
 
 
@@ -59,13 +59,13 @@ title('Ground truth')
 %% *** Training part ***
 
 %% Feature extraction
-Features = zeros(2,length(RR));
+Features = zeros(1,length(RR));
 
 % P_cv
 Features(1,:) = pcv(RR);
 
 % deltaHistogram
-Features(2,:) = deltaHistogram(RR);
+%Features(2,:) = deltaHistogram(RR);
 
 %% Plot P_cv --> corrupted data?? 
 % figure(2)
@@ -101,13 +101,13 @@ classifier = trainClassifier(Features, TargetsRR);
 features = cell(1,4);
 
 for i = 1:4
-    features{i} = zeros(2, length(rr{i}));
+    features{i} = zeros(1, length(rr{i}));
     
     % P_cv
     features{i}(1,:) = pcv(rr{i});
     
     % deltaHistogram
-    features{i}(2,:) = deltaHistogram(rr{i});
+    %features{i}(2,:) = deltaHistogram(rr{i});
 end
 
 %% AF-detection
@@ -136,11 +136,10 @@ for i = 1:4
 end
 
 %% Plot the results for subjects
-close all
 figure(1)
 
 for i = 1:4
-    subplot(4,1,i)
+subplot(4,1,i)
     
     classifiedVector = benchmarkColors(targetsRR{i}, detectRR{i}, rr{i});
     
@@ -149,11 +148,11 @@ for i = 1:4
         plot(classifiedVector{3,j}, classifiedVector{2,j})
     end
     ylabel(['AFDB\_' num2str(i)])
-    
     hold off
 end
+
 bme = suptitle('Classified signals');
-set(bme, 'FontSize',30, 'FontName', 'Jokerman')
+set(bme, 'FontSize',30)
 legend({'True negative', 'True positive', 'False negative', 'False positive'},'FontSize',14)
 
 

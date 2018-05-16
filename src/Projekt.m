@@ -98,9 +98,9 @@ classifier = trainClassifier(Features, TargetsRR);
 %% *** Classification part ***
 
 %% Feature extraction
-features = cell(1,4);
+features = cell(1,7);
 
-for i = 1:4
+for i = 1:7
     features{i} = zeros(1, length(rr{i}));
     
     % P_cv
@@ -111,15 +111,15 @@ for i = 1:4
 end
 
 %% AF-detection
-detectRR = cell(1,4);
+detectRR = cell(1,7);
 
-for i = 1:4
+for i = 1:7
     detectRR{i} = myClassifier(features{i}, classifier);
 end
 
 %% Interval smoothing with threshold
 
-for i = 1:4
+for i = 1:7
     detectRR{i} = noiseEraser(detectRR{i});
 end
     
@@ -155,5 +155,11 @@ bme = suptitle('Classified signals');
 set(bme, 'FontSize',30)
 legend({'True negative', 'True positive', 'False negative', 'False positive'},'FontSize',14)
 
+%% Save the evaluation detections
+detectRR_5 = detectRR{5};
+detectRR_6 = detectRR{6};
+detectRR_7 = detectRR{7};
+
+save('PAFresults', 'detectRR_5', 'detectRR_6', 'detectRR_7')
 
 
